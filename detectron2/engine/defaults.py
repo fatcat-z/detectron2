@@ -227,6 +227,8 @@ class DefaultPredictor:
 
         self.input_format = cfg.INPUT.FORMAT
         assert self.input_format in ["RGB", "BGR"], self.input_format
+        self.default_inputs = None
+        self.outputs = None
 
     def __call__(self, original_image):
         """
@@ -247,8 +249,16 @@ class DefaultPredictor:
             image = self.aug.get_transform(original_image).apply_image(original_image)
             image = torch.as_tensor(image.astype("float32").transpose(2, 0, 1))
 
-            inputs = {"image": image, "height": height, "width": width}
-            predictions = self.model([inputs])[0]
+            inputs = {"image": torch.randint_like(image, 0, 256), "height": height, "width": width}
+            tensor_inputs = {"image": inputs['image'], "height": torch.tensor([height]), "width": torch.tensor([width])}
+            self.default_inputs = [tensor_inputs]
+            # self.default_inputs = [inputs]
+            # inputs = {"image": image}
+            # self.outputs = self.model([inputs])
+            # self.outputs = self.model(inputs['image'], inputs['height'], inputs['width'])
+            self.outputs = self.model(inputs['image'], torch.from_numpy(original_image))
+            predictions = self.outputs[0]
+            # return torch.ones(1)
             return predictions
 
 
