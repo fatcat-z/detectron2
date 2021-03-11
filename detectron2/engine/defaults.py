@@ -257,7 +257,8 @@ class DefaultPredictor:
             # self.outputs = self.model([inputs])
             # self.outputs = self.model(inputs['image'], inputs['height'], inputs['width'])
             self.outputs = self.model(inputs['image'], torch.from_numpy(original_image))
-            predictions = self.outputs[0]
+            # predictions = self.outputs[0]
+            predictions = self.outputs
             # return torch.ones(1)
             return predictions
 

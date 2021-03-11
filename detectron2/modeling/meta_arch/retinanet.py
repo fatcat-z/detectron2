@@ -252,19 +252,13 @@ class RetinaNet(nn.Module):
 
         input_height, input_width = orig_input.shape[:2]
 
-        if (isinstance(input_height, torch.Tensor)):
-            input_height = input_height.item()
+        # if (isinstance(input_height, torch.Tensor)):
+        #     input_height = input_height.item()
 
-        if (isinstance(input_width, torch.Tensor)):
-            input_width = input_width.item()
+        # if (isinstance(input_width, torch.Tensor)):
+        #     input_width = input_width.item()
 
         batched_inputs = [{'image': input_image, 'height': input_height, 'width': input_width}]
-
-        # if (isinstance(batched_inputs[0]['height'], torch.Tensor)):
-        #     batched_inputs[0]['height'] = batched_inputs[0]['height'][0].item()
-
-        # if (isinstance(batched_inputs[0]['width'], torch.Tensor)):
-        #     batched_inputs[0]['width'] = batched_inputs[0]['width'][0].item()
 
         images = self.preprocess_image(batched_inputs)
         features = self.backbone(images.tensor)
@@ -308,8 +302,13 @@ class RetinaNet(nn.Module):
                 r = detector_postprocess(results_per_image, height, width)
                 # processed_results.append({"instances": r.__str__()})
                 # processed_results.append(torch.tensor(r.image_size[0]))
-                processed_results.append((r.scores, torch.tensor(r.image_size[0])))
+                if isinstance(input_height, torch.Tensor) == False:
+                    height = torch.tensor(input_height)
 
+                if isinstance(input_width, torch.Tensor) == False:
+                    width = torch.tensor(input_width)
+
+                processed_results.append((r.scores, height, width))
             return processed_results
 
     def losses(self, anchors, pred_logits, gt_labels, pred_anchor_deltas, gt_boxes):
